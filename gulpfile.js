@@ -14,6 +14,8 @@ var gulp          = require('gulp');
 var pngquant      = require('imagemin-pngquant');
 var terminus      = require('terminus');
 var runSequence   = require('run-sequence');
+var puglint       = require('gulp-pug-lint');
+var debug         = require('gulp-debug');
 
 /**
  * Banner
@@ -25,7 +27,7 @@ var banner = [
   ' * <%= pkg.name %> - <%= pkg.description %>',
   ' * @version v<%= pkg.version %>',
   ' * @link <%= pkg.homepage %>',
-  ' * @license <%= pkg.licenses[0].type %>',
+  ' * @license <%= pkg.license %>',
   ' */',
   ''
 ].join('\n');
@@ -74,7 +76,7 @@ var paths = {
     'gulpfile.js'
   ],
   less: [
-    //'less/main.less',
+    'less/main.less'//,
     //'less/page-api.less',
     //'less/page-colors.less',
     //'less/page-dashboard.less',
@@ -97,6 +99,7 @@ gulp.task('clean', function () {
 
 gulp.task('styles', function () {
   return gulp.src(paths.less)               // Read in Less files
+    .pipe(debug())
     .pipe($.less({ strictMath: true }))     // Compile Less files
     .pipe($.autoprefixer({                  // Autoprefix for target browsers
       browsers: ['last 2 versions'],
@@ -164,12 +167,22 @@ gulp.task('lint', function () {
 
 gulp.task('jscs', function () {
   return gulp.src(paths.lint)               // Read .js files
+    .pipe(debug())
     .pipe($.jscs())                         // jscs .js files
     .on('error', function (e) {
       $.util.log(e.message);
       $.jscs().end();
     })
     .pipe(terminus.devnull({ objectMode: true }));
+});
+
+/**
+*
+*/
+gulp.task('pug', function () {
+  return gulp
+    .src('views/**/*.pug')
+    .pipe(puglint());
 });
 
 /**
@@ -180,8 +193,8 @@ gulp.task('jscs', function () {
 gulp.task('build', function (cb) {
   runSequence(
     'clean',                                // first clean
-    ['lint'/*, 'jscs'*/],                       // then lint and jscs in parallel
-    ['styles', 'scripts', 'images'],        // etc.
+    ['lint', 'jscs'],                   // then lint and jscs in parallel
+    ['pug', 'styles', 'scripts', 'images'],        // etc.
     cb);
 });
 
