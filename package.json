@@ -6,11 +6,73 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines": {
+    "node": "8.9.x"
+  },
   "author": "Lapo Pancani",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.2",
+    "compression": "^1.7.1",
+    "connect-mongo": "^2.0.1",
     "csurf": "^1.9.0",
-    "express": "^4.16.2"
+    "dotenv": "^5.0.0",
+    "errorhandler": "^1.5.0",
+    "express": "^4.16.2",
+    "express-flash": "0.0.2",
+    "express-session": "^1.15.6",
+    "express-sslify": "^1.2.0",
+    "express-validator": "^4.3.0",
+    "fs": "0.0.1-security",
+    "helmet": "^3.10.0",
+    "method-override": "^2.3.10",
+    "moment": "^2.20.1",
+    "mongoose": "^5.0.3",
+    "morgan": "^1.9.0",
+    "numeral": "^2.0.6",
+    "path": "^0.12.7",
+    "pug": "^2.0.0-rc.4",
+    "semver": "^5.5.0",
+    "serve-favicon": "^2.4.5"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.1.0",
+    "gulp-changed": "^3.2.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-csscomb": "^3.0.8",
+    "gulp-csslint": "^1.0.0",
+    "gulp-csso": "^3.0.1",
+    "gulp-header": "^2.0.1",
+    "gulp-imagemin": "^4.1.0",
+    "gulp-jscs": "^4.1.0",
+    "gulp-jshint": "^2.1.0",
+    "gulp-less": "^3.4.0",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-nodemon": "^2.2.1",
+    "gulp-open": "^2.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-size": "^3.0.0",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0",
+    "gulp-util": "^3.0.8",
+    "imagemin-pngquant": "^5.0.1",
+    "jshint": "^2.9.5",
+    "jshint-stylish": "^2.2.1",
+    "psi": "^3.1.0",
+    "run-sequence": "^2.2.1",
+    "terminus": "^1.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stelapo/lapo_demo.git"
+  },
+  "keywords": [
+    "express"
+  ],
+  "bugs": {
+    "url": "https://github.com/stelapo/lapo_demo/issues"
+  },
+  "homepage": "https://github.com/stelapo/lapo_demo#readme"
 }
