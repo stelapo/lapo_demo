@@ -22,7 +22,11 @@
   "dependencies": {
     "font-awesome": "^5.0.6",
     "bootstrap": "^4.0.0",
-    "bootstrap-social": "^5.1.1"
+    "bootstrap-social": "^5.1.1",
+    "jquery": "^3.3.1",
+    "fastclick": "^1.0.6",
+    "animate.css": "^3.5.2",
+    "odometer": "^0.4.8"
   },
   "resolutions": {
     "font-awesome": "~4.7"

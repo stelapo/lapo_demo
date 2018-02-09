@@ -2,7 +2,7 @@ footer.footer.bg-black
   .container
     p
       | Copyright © #{moment().format('YYYY')}&nbsp;
-      img.hidden-xs(src='/favicon.png', width='50px')
+      img.hidden-xs(src='/favicon.png', width='1%')
       | &nbsp;#{application}, all rights reserved. |&nbsp;
       a(href='/terms') Terms of Use&nbsp;
       | |&nbsp;
@@ -10,7 +10,7 @@ footer.footer.bg-black
 
 //- Load jQuery, food for thought:
 //- https://palant.de/2014/06/30/please-don-t-use-externally-hosted-javascript-libraries
-script(src='//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js')
+script(src='//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
 //- Backup just in case
 script window.jQuery || document.write('<script src="/lib/jquery/dist/jquery.min.js"><\/script>')
 //- Then use jQuery to async load everything else
@@ -27,7 +27,7 @@ script.
         FastClick.attach(document.body);
       }, false);
     });
-    //- Async load socket.io
+    /*//- Async load socket.io
     $.ajax({
       type: 'GET',
       url: '//cdn.socket.io/socket.io-1.2.1.js',
@@ -43,5 +43,5 @@ script.
           socket.emit('pageview', window.location.href);
         };
       });
-    });
+    });*/
   });

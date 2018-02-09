@@ -50,12 +50,12 @@ var paths = {
     // Enable/disable as needed but only turn on
     // .js that is needed on *every* page. No bloat!
     // =========================================
-    ////////////'public/lib/bootstrap/js/transition.js',
-    ///////////'public/lib/bootstrap/js/alert.js',
+    'public/lib/bootstrap/js/transition.js',
+    'public/lib/bootstrap/js/alert.js',
     // 'public/lib/bootstrap/js/button.js',
     // 'public/lib/bootstrap/js/carousel.js',
-    //////////'public/lib/bootstrap/js/collapse.js',
-    ///////////'public/lib/bootstrap/js/dropdown.js',
+    'public/lib/bootstrap/js/collapse.js',
+    'public/lib/bootstrap/js/dropdown.js',
     // 'public/lib/bootstrap/js/modal.js',
     // 'public/lib/bootstrap/js/tooltip.js',
     // 'public/lib/bootstrap/js/popover.js',
@@ -63,25 +63,25 @@ var paths = {
     // 'public/lib/bootstrap/js/tab.js',
     // 'public/lib/bootstrap/js/affix.js'
     // =========================================
-    ///////'public/lib/fastclick/lib/fastclick.js',
+    'public/lib/fastclick/lib/fastclick.js',
     'public/js/main.js'
   ],
   lint: [
     'config/**/*.js',
-    //'test/**/*.js',
+    'test/**/*.js',
     'controllers/**/*.js',
-    //'models/**/*.js',
+    'models/**/*.js',
     'app.js',
     //'app_cluster.js',
     'gulpfile.js'
   ],
   less: [
-    'less/main.less'//,
-    //'less/page-api.less',
-    //'less/page-colors.less',
-    //'less/page-dashboard.less',
-    //'less/page-privacy.less',
-    //'less/page-react.less'
+    'less/main.less'/*,
+    'less/page-api.less',
+    'less/page-colors.less',
+    'less/page-dashboard.less',
+    'less/page-privacy.less',
+    'less/page-react.less'*/
   ]
 };
 
@@ -123,10 +123,12 @@ gulp.task('styles', function () {
 
 gulp.task('scripts', function () {
   return gulp.src(paths.js)                 // Read .js files
+    .pipe($.plumber())                      // Prevent pipe breaking caused by errors from gulp plugins
+    .pipe(debug())                          // Print source filenames
     .pipe($.concat(pkg.name + '.js'))       // Concatenate .js files
     .pipe(gulp.dest('./public/js'))         // Save main.js here
     .pipe($.rename({ suffix: '.min' }))     // Add .min suffix
-    .pipe($.uglify({ outSourceMap: true })) // Minify the .js
+    .pipe($.uglify(/*{ outSourceMap: true }*/)) // Minify the .js
     .pipe($.header(banner, { pkg : pkg }))  // Add banner
     .pipe($.size({ title: 'JS:' }))         // What size are we at?
     .pipe(gulp.dest('./public/js'))         // Save minified .js
@@ -143,7 +145,7 @@ gulp.task('images', function () {
     .pipe($.changed('./public/img'))        // Only process new/changed
     .pipe($.imagemin({                      // Compress images
       progressive: true,
-      optimizationLevel: 3,
+      optimizationLevel: 9,
       interlaced: true,
       svgoPlugins: [{ removeViewBox: false }],
       use: [pngquant()]

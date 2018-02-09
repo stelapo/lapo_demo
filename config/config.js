@@ -42,6 +42,11 @@ config.engine         = pkg.engines.node || pkg.engines.iojs;
 config.port           = process.env.PORT || 3000;
 config.ga             = process.env.GA   || 'google analytics key';
 
+// File log configuration
+config.logpath            = 'log/';
+config.winston            = {};
+config.winston.filename   = config.logpath + '-winston.log';
+
 /**
  * Logging Configuration
  */
@@ -114,31 +119,31 @@ config.gmail.password          = process.env.SMTP_PASSWORD || 'appspecificpasswo
 config.localAuth               = true;
 config.verificationRequired    = false;  // on/off for user email verification at signup
 config.enhancedSecurity        = true;   // on/off for two factor authentication
-/*
+
 // Facebook
-config.facebookAuth            = true;
+config.facebookAuth            = false;
 config.facebook                = {};
 config.facebook.clientID       = process.env.FACEBOOK_KEY    || 'Your Key';
 config.facebook.clientSecret   = process.env.FACEBOOK_SECRET || 'Your Secret';
 
 // Github
-config.githubAuth              = true;
+config.githubAuth              = false;
 config.github                  = {};
 config.github.clientID         = process.env.GITHUB_KEY    || 'Your Key';
 config.github.clientSecret     = process.env.GITHUB_SECRET || 'Your Secret';
 
 // Twitter
-config.twitterAuth             = true;
+config.twitterAuth             = false;
 config.twitter                 = {};
 config.twitter.consumerKey     = process.env.TWITTER_KEY    || 'Your Key';
 config.twitter.consumerSecret  = process.env.TWITTER_SECRET || 'Your Secret';
 
 // Google
-config.googleAuth              = true;
+config.googleAuth              = false;
 config.google                  = {};
 config.google.clientID         = process.env.GOOGLE_KEY    || 'Your Key';
 config.google.clientSecret     = process.env.GOOGLE_SECRET || 'Your Secret';
-*/
+
 
 /**
  * API Keys

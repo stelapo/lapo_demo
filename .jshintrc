@@ -1,4 +1,6 @@
 {
+  "esversion"     : 6,        // accept ECMAScript 6 features
+
   "maxerr"        : 50,       // {int} Maximum # of errors before stopping
 
   // Enforcing

@@ -18,5 +18,6 @@
   "universal-selector": false,
   "unqualified-attributes": false,
   "duplicate-properties": false,
-  "vendor-prefix": false
+  "vendor-prefix": false,
+  "order-alphabetical": false
 }

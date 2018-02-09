@@ -5,43 +5,48 @@
  */
 
 // Express 4.x Modules
-var csrf              = require('csurf');                   // https://github.com/expressjs/csurf
-var morgan            = require('morgan');                  // https://github.com/expressjs/morgan
-var express           = require('express');                 // https://npmjs.org/package/express
-var favicon           = require('serve-favicon');           // https://github.com/expressjs/favicon
-var session           = require('express-session');         // https://github.com/expressjs/session
-var compress          = require('compression');             // https://github.com/expressjs/compression
-var bodyParser        = require('body-parser');             // https://github.com/expressjs/body-parser
-var errorHandler      = require('errorhandler');            // https://github.com/expressjs/errorhandler
-var methodOverride    = require('method-override');         // https://github.com/expressjs/method-override
+const csrf              = require('csurf');                   // https://github.com/expressjs/csurf
+//const morgan            = require('morgan');                  // https://github.com/expressjs/morgan
+const winston           = require('winston');
+const expressWinston    = require('express-winston');         // https://www.npmjs.com/package/express-winston
+const express           = require('express');                 // https://npmjs.org/package/express
+const favicon           = require('serve-favicon');           // https://github.com/expressjs/favicon
+const session           = require('express-session');         // https://github.com/expressjs/session
+const compress          = require('compression');             // https://github.com/expressjs/compression
+const bodyParser        = require('body-parser');             // https://github.com/expressjs/body-parser
+const errorHandler      = require('errorhandler');            // https://github.com/expressjs/errorhandler
+const methodOverride    = require('method-override');         // https://github.com/expressjs/method-override
 
 // Additional Modules
-var fs                = require('fs');                      // http://nodejs.org/docs/v0.10.25/api/fs.html
-var path              = require('path');                    // http://nodejs.org/docs/v0.10.25/api/path.html
-var debug             = require('debug')('lapo_demo');       // https://github.com/visionmedia/debug
-var flash             = require('express-flash');           // https://npmjs.org/package/express-flash
-var config            = require('./config/config');         // Get configuration file
-//var logger            = require('express-loggly');          // https://github.com/dstroot/express-loggly
-var helmet            = require('helmet');                  // https://github.com/evilpacket/helmet
-var semver            = require('semver');                  // https://npmjs.org/package/semver
-var enforce           = require('express-sslify');          // https://github.com/florianheinemann/express-sslify
-var mongoose          = require('mongoose');                // https://npmjs.org/package/mongoose
-var MongoStore        = require('connect-mongo')(session);  // https://npmjs.org/package/connect-mongo
-var expressValidator  = require('express-validator');       // https://npmjs.org/package/express-validator
+const fs                = require('fs');                      // http://nodejs.org/docs/v0.10.25/api/fs.html
+const path              = require('path');                    // http://nodejs.org/docs/v0.10.25/api/path.html
+const debug             = require('debug')('lapo_demo');       // https://github.com/visionmedia/debug
+const flash             = require('express-flash');           // https://npmjs.org/package/express-flash
+const config            = require('./config/config');         // Get configuration file
+//const logger            = require('express-loggly');          // https://github.com/dstroot/express-loggly
+const helmet            = require('helmet');                  // https://github.com/evilpacket/helmet
+const semver            = require('semver');                  // https://npmjs.org/package/semver
+const enforce           = require('express-sslify');          // https://github.com/florianheinemann/express-sslify
+const mongoose          = require('mongoose');                // https://npmjs.org/package/mongoose
+const passport          = require('passport');                // https://npmjs.org/package/passport
+const MongoStore        = require('connect-mongo')(session);  // https://npmjs.org/package/connect-mongo
+const expressValidator  = require('express-validator');       // https://npmjs.org/package/express-validator
 
 /**
  * Create Express app, HTTP server and socket.io listener
  */
 
-var app    = module.exports = express();  // export app for testing ;)
-var server = require('http').Server(app);
+const app    = module.exports = express();  // export app for testing ;)
+const server = require('http').Server(app);
+
+const tsFormat = () => (new Date()).toLocaleTimeString();
 
 /**
  * Configure Mongo Database
  */
 
 mongoose.connect(config.mongodb.url);
-var db = mongoose.connection;
+const db = mongoose.connection;
 
 // Use Mongo for session store
 config.session.store  = new MongoStore({
@@ -89,7 +94,7 @@ if (app.get('env') === 'development') {
   app.locals.pretty = true;
   app.locals.compileDebug = true;
   // Turn on console logging in development
-  app.use(morgan('dev'));
+  //////////app.use(morgan('dev'));
   // Turn off caching in development
   // This sets the Cache-Control HTTP header to no-store, no-cache,
   // which tells browsers not to cache anything.
@@ -122,7 +127,7 @@ if (app.get('env') === 'production') {
   // visit by HTTPS for the next ninety days:
   // TODO: should we actually have this *and* app.use(enforce.HTTPS(true)); above?
   //       this seems more flexible rather than a hard redirect.
-  var ninetyDaysInMilliseconds = 7776000000;
+  const ninetyDaysInMilliseconds = 7776000000;
   app.use(helmet.hsts({ maxAge: ninetyDaysInMilliseconds }));
   // Turn on HTTPS/SSL cookies
   config.session.proxy = true;
@@ -169,10 +174,10 @@ app.set('etag', true);  // other values 'weak', 'strong'
 // Now setup serving static assets from /public
 
 // time in milliseconds...
-var minute = 1000 * 60;   //     60000
-var hour = (minute * 60); //   3600000
-var day  = (hour * 24);   //  86400000
-var week = (day * 7);     // 604800000
+const minute = 1000 * 60;   //     60000
+const hour = (minute * 60); //   3600000
+const day  = (hour * 24);   //  86400000
+const week = (day * 7);     // 604800000
 
 app.use(express.static(__dirname + '/public', { maxAge: week }));
 
@@ -218,9 +223,42 @@ best to use a tool like Winston.  But the easy way is
 to send the morgan log stream to ./myLogFile.log:
 
 // use {flags: 'w'} to open in write mode, 'a' = append
-var logFile = fs.createWriteStream('./myLogFile.log', { flags: 'a' });
+const logFile = fs.createWriteStream('./myLogFile.log', { flags: 'a' });
 app.use(morgan('combined', { stream: logFile }));
 */
+
+const transp = [];
+// Transport console if dev mode
+if (app.get('env') === 'development') {
+  transp.push(new winston.transports.Console({
+                json: false,
+                colorize: true,
+                timestamp: tsFormat
+              }));
+}
+// Transport file always
+transp.push(new (require('winston-daily-rotate-file'))({ //new (winston.transports.File)({
+              filename: `${config.winston.filename}`,
+              timestamp: tsFormat,
+              localTime: true,
+              datePattern: 'yyyy-MM-dd',
+              prepend: true,
+              zippedArchive: true,
+              maxDays: 7,
+              json: false,
+              level: app.get('env') === 'development' ? 'debug' : 'info'
+            }));
+
+// use Winston for Request Logging
+app.use(expressWinston.logger({
+      transports: transp,
+      meta: true, // optional: control whether you want to log the meta data about the request (default to true)
+      msg: "HTTP {{req.method}} {{req.url}}", // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
+      expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
+      colorize: true, // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
+      ignoreRoute: function (req, res) { return false; } // optional: allows to skip some log messages based on request and/or response
+    }));
+
 
 // Log requests to Loggly in production
 // Needs to be below session and bodyParser in the stack
@@ -345,8 +383,8 @@ app.use(helmet.contentSecurityPolicy({
 }));*/
 
 // Passport OAUTH Middleware
-/*app.use(passport.initialize());
-app.use(passport.session());*/
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Keep user, csrf token and config available
 app.use(function (req, res, next) {
@@ -369,7 +407,7 @@ app.use(flash());
 // Dynamically include routes (via controllers)
 fs.readdirSync('./controllers').forEach(function (file) {
   if (file.substr(-3) === '.js') {
-    var route = require('./controllers/' + file);
+    const route = require('./controllers/' + file);
     route.controller(app);
   }
 });
@@ -377,6 +415,12 @@ fs.readdirSync('./controllers').forEach(function (file) {
 /**
  * Error Handling
  */
+
+
+ // Winston error logging
+ app.use(expressWinston.errorLogger({
+       transports: transp
+     }));
 
 // If nothing responded above we will assume a 404
 // (since no routes responded or static assets found)
