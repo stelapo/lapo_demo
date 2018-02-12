@@ -76,11 +76,12 @@ var paths = {
     'gulpfile.js'
   ],
   less: [
-    'less/main.less'/*,
-    'less/page-api.less',
+    'less/main.less',/*
+    'less/page-api.less',*/
     'less/page-colors.less',
     'less/page-dashboard.less',
-    'less/page-privacy.less',
+    'less/page-accounts.less',
+    'less/page-privacy.less'/*,
     'less/page-react.less'*/
   ]
 };
@@ -264,7 +265,7 @@ gulp.task('default', ['open'], function () {
 // registering for an API key from the Google Developer Console
 // is recommended.
 
-var site = 'skeleton-app.jit.su';
+var site = 'lapo_demo.su';
 
 gulp.task('mobile', function (cb) {
   // output a formatted report to the terminal

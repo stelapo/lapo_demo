@@ -100,7 +100,7 @@ config.loginAttempts.expires   = '20m';
 /**
  * Mailing Configuration
  */
-/*
+
 // Who are we sending email as?
 config.smtp                    = {};
 config.smtp.name               = process.env.SMTP_FROM_NAME    || 'support';
@@ -110,7 +110,7 @@ config.smtp.address            = process.env.SMTP_FROM_ADDRESS || 'support@skele
 config.gmail                   = {};
 config.gmail.user              = process.env.SMTP_USERNAME || 'you@gmail.com';
 config.gmail.password          = process.env.SMTP_PASSWORD || 'appspecificpassword';
-*/
+
 
 /**
  * Authorization Configuration
@@ -118,7 +118,7 @@ config.gmail.password          = process.env.SMTP_PASSWORD || 'appspecificpasswo
 
 config.localAuth               = true;
 config.verificationRequired    = false;  // on/off for user email verification at signup
-config.enhancedSecurity        = true;   // on/off for two factor authentication
+config.enhancedSecurity        = false;   // on/off for two factor authentication
 
 // Facebook
 config.facebookAuth            = false;

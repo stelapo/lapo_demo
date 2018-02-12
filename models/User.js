@@ -34,7 +34,7 @@ var userSchema = new mongoose.Schema({
 
   email: { type: String, unique: true, index: true },
   password: { type: String },
-  type: { type: String, default: 'admin' },
+  type: { type: String, default: 'user' },
   // EVERYONE'S AN ADMINISTRATOR IN EXAMPLE
   // DEFAULT TYPE SHOULB BE 'user'!
   // type: { type: String, default: 'user' },

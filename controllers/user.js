@@ -5,7 +5,7 @@
  */
 
 const User          = require('../models/User');
-const debug         = require('debug')('skeleton');  // https://github.com/visionmedia/debug
+const debug         = require('debug')('lapo_demo');  // https://github.com/visionmedia/debug
 const async         = require('async');
 const crypto        = require('crypto');
 const config        = require('../config/config');

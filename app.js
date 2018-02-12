@@ -38,6 +38,7 @@ const expressValidator  = require('express-validator');       // https://npmjs.o
 
 const app    = module.exports = express();  // export app for testing ;)
 const server = require('http').Server(app);
+const io     = require('socket.io')(server);
 
 const tsFormat = () => (new Date()).toLocaleTimeString();
 
@@ -179,6 +180,7 @@ const hour = (minute * 60); //   3600000
 const day  = (hour * 24);   //  86400000
 const week = (day * 7);     // 604800000
 
+app.use(express.static(__dirname + '/public/lib/zxcvbn/dist'));
 app.use(express.static(__dirname + '/public', { maxAge: week }));
 
 // Body parsing middleware supporting
@@ -245,7 +247,7 @@ transp.push(new (require('winston-daily-rotate-file'))({ //new (winston.transpor
               prepend: true,
               zippedArchive: true,
               maxDays: 7,
-              json: false,
+              json: true,
               level: app.get('env') === 'development' ? 'debug' : 'info'
             }));
 
@@ -547,11 +549,47 @@ db.on('open', function () {
 
     // Exit cleanly on Ctrl+C
     process.on('SIGINT', function () {
-      //io.close();  // close socket.io
+      io.close();  // close socket.io
       console.log('\n');
       debug('has ' + 'shutdown'/*.green.bold*/);
       debug('was running for ' + Math.round(process.uptime()).toString()/*.green.bold*/ + ' seconds.');
       process.exit(0);
+    });
+  });
+});
+
+/**
+ * Emit Pageviews on Socket.io for Dashboard
+ *
+ *   Web Page (Client) --->> ( `pageview` messages ) --->> Server
+ *   Web Page (Client) <<--- (`dashUpdate` messages) <<--- Server
+ */
+
+var connectedCount = 0;
+
+io.on('connection', function (socket) {
+  debug("Socket connected:" + (socket.handshake.headers['x-forwarded-for'] || socket.client.conn.remoteAddress || socket.handshake.address));
+  connectedCount += 1;
+  // Listen for pageview messages from clients
+  socket.on('pageview', function (message) {
+    var ip = socket.handshake.headers['x-forwarded-for'] || socket.client.conn.remoteAddress || socket.handshake.address;
+    var url = message;
+    var userAgent = socket.request.headers['user-agent'];
+    // Broadcast dashboard update (to all clients in default namespace)
+    io.emit('dashUpdate', {
+      connections: connectedCount,
+      ip: ip,
+      url: url,
+      timestamp: new Date(),
+      userAgent: userAgent
+    });
+  });
+  // Update dashboard connections on disconnect events
+  socket.on('disconnect', function () {
+    debug("Socket disconnected");
+    connectedCount -= 1;
+    io.emit('dashUpdate', {
+      connections: connectedCount
     });
   });
 });

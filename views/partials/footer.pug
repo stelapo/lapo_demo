@@ -27,15 +27,16 @@ script.
         FastClick.attach(document.body);
       }, false);
     });
-    /*//- Async load socket.io
+    //- Async load socket.io
     $.ajax({
       type: 'GET',
-      url: '//cdn.socket.io/socket.io-1.2.1.js',
+      url: 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js',
       dataType: 'script',
       cache: true
     }).done(function () {
       $(function(){
-        var socket = io(window.location.hostname);
+        //var socket = io(window.location.hostname);
+        var socket = io();
         socket.on('connect', function () {
           socket.emit('pageview', window.location.href);
         });
@@ -43,5 +44,5 @@ script.
           socket.emit('pageview', window.location.href);
         };
       });
-    });*/
+    });
   });
