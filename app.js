@@ -31,6 +31,7 @@ const mongoose          = require('mongoose');                // https://npmjs.o
 const passport          = require('passport');                // https://npmjs.org/package/passport
 const MongoStore        = require('connect-mongo')(session);  // https://npmjs.org/package/connect-mongo
 const expressValidator  = require('express-validator');       // https://npmjs.org/package/express-validator
+const utils             = require('./config/utils');          // Get utils file
 
 /**
  * Create Express app, HTTP server and socket.io listener
@@ -40,7 +41,7 @@ const app    = module.exports = express();  // export app for testing ;)
 const server = require('http').Server(app);
 const io     = require('socket.io')(server);
 
-const tsFormat = () => (new Date()).toLocaleTimeString();
+const tsFormat = () => utils.formattedTimestamp;
 
 /**
  * Configure Mongo Database

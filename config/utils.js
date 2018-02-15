@@ -135,3 +135,20 @@ exports.encode = function (plain) {
 
   return encoded.join('');
 };
+
+
+/**
+ * Return a timestamp with local timezone
+ * @type {Date}
+ */
+function myTimestamp() {
+    var date = new Date(); // Or the date you'd like converted.
+    var isoDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    return isoDate;
+}
+
+exports.timestamp = myTimestamp;
+
+exports.formattedTimestamp = function() {
+    return myTimestamp().toISOString().replace(/z|t/gi, ' ').trim();
+};
