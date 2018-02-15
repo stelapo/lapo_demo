@@ -4,14 +4,14 @@
  * Module Dependencies
  */
 
- var pkg               = require('../package.json');
- var dotenv            = require('dotenv');  // https://www.npmjs.com/package/dotenv
+var pkg = require('../package.json');
+var dotenv = require('dotenv'); // https://www.npmjs.com/package/dotenv
 
- // *For Development Purposes*
- // Read in environment vars from .env file
- // In production I recommend setting the
- // environment vars directly
- dotenv.load();
+// *For Development Purposes*
+// Read in environment vars from .env file
+// In production I recommend setting the
+// environment vars directly
+dotenv.load();
 
 
 /**
@@ -28,121 +28,145 @@
 
 
 
-var config            = {};
+var config = {};
 
 // From package.json
-config.name           = pkg.name;
-config.version        = pkg.version;
-config.description    = pkg.description;
-config.company        = pkg.company;
-config.author         = pkg.author;
-config.keywords       = pkg.keywords;
-config.engine         = pkg.engines.node || pkg.engines.iojs;
+config.name = pkg.name;
+config.version = pkg.version;
+config.description = pkg.description;
+config.company = pkg.company;
+config.author = pkg.author;
+config.keywords = pkg.keywords;
+config.engine = pkg.engines.node || pkg.engines.iojs;
 
-config.port           = process.env.PORT || 3000;
-config.ga             = process.env.GA   || 'google analytics key';
+config.port = process.env.PORT || 3000;
+config.ga = process.env.GA || 'google analytics key';
 
 // File log configuration
-config.logpath            = 'log/';
-config.winston            = {};
-config.winston.filename   = config.logpath + '-winston.log';
+config.logpath = 'log/';
+config.winston = {};
+config.winston.filename = config.logpath + '-winston.log';
 
 /**
  * Logging Configuration
  */
 
-config.logging        = process.env.LOGGING || false;
+config.logging = process.env.LOGGING || false;
 
 // Loggly configuration
-config.loggly         = {};
-config.loggly.token   = process.env.LOGGLY_TOKEN || 'Your Token';
+config.loggly = {};
+config.loggly.token = process.env.LOGGLY_TOKEN || 'Your Token';
 config.loggly.subdomain = 'skeleton';
-config.loggly.tags    = ['Nodejitsu'];
-config.loggly.json    = true;
+config.loggly.tags = ['Nodejitsu'];
+config.loggly.json = true;
 
 /**
  * Database Configuration
  */
 
-config.mongodb        = {};
-config.mongodb.url    = 'mongodb://';
-config.mongodb.url    += process.env.MONGODB_URL || 'localhost';
+config.mongodb = {};
+config.mongodb.url = 'mongodb://';
+config.mongodb.url += process.env.MONGODB_URL || 'localhost';
+
+config.knex = {};
+config.knex.enabled = true;
+config.knex.cfgData = {
+  development: {
+    client: 'pg',
+    connection: {
+      host: process.env.KNEX_HOST || '10.55.55.79',
+      user: process.env.KNEX_USER || 'test',
+      password: process.env.KNEX_PSW || 'test',
+      database: process.env.KNEX_DATABASE || 'postgres'
+    },
+    pool: {
+      min: process.env.KNEX_POOL_MIN || 1,
+      max: process.env.KNEX_POOL_MAX || 5,
+      acquire(callback) {
+        console.log('ECCOCI!!!!!');
+      }
+    },
+    acquireConnectionTimeout: 3000,
+    debug: true
+  }
+};
+
 
 /**
  * Session Configuration
  */
 
-var hour              = 3600000;
-var day               = (hour * 24);
-var week              = (day * 7);
+var hour = 3600000;
+var day = (hour * 24);
+var week = (day * 7);
 
 // Session
-config.session                 = {};
-config.session.secret          = process.env.SESSION_SECRET || 'my big secret';
-config.session.name            = 'sid';  // Generic - don't leak information
-config.session.proxy           = false;  // Trust the reverse proxy for HTTPS/SSL
-config.session.resave          = false;  // Forces session to be saved even when unmodified
+config.session = {};
+config.session.secret = process.env.SESSION_SECRET || 'my big secret';
+config.session.name = 'sid'; // Generic - don't leak information
+config.session.proxy = false; // Trust the reverse proxy for HTTPS/SSL
+config.session.resave = false; // Forces session to be saved even when unmodified
 config.session.saveUninitialized = false; // forces a session that is "uninitialized" to be saved to the store
-config.session.cookie          = {};
-config.session.cookie.httpOnly = true;   // Reduce XSS attack vector
-config.session.cookie.secure   = false;  // Cookies via HTTPS/SSL
-config.session.cookie.maxAge   = process.env.SESSION_MAX_AGE || week;
+config.session.cookie = {};
+config.session.cookie.httpOnly = true; // Reduce XSS attack vector
+config.session.cookie.secure = false; // Cookies via HTTPS/SSL
+config.session.cookie.maxAge = process.env.SESSION_MAX_AGE || week;
 
 /**
  * Throttle Login Attempts
  */
 
-config.loginAttempts           = {};
-config.loginAttempts.forIp     = 50;
-config.loginAttempts.forUser   = 5;
-config.loginAttempts.expires   = '20m';
+config.loginAttempts = {};
+config.loginAttempts.forIp = 50;
+config.loginAttempts.forUser = 5;
+config.loginAttempts.expires = '20m';
 
 /**
  * Mailing Configuration
  */
 
 // Who are we sending email as?
-config.smtp                    = {};
-config.smtp.name               = process.env.SMTP_FROM_NAME    || 'support';
-config.smtp.address            = process.env.SMTP_FROM_ADDRESS || 'support@skeleton.com';
+config.smtp = {};
+config.smtp.name = process.env.SMTP_FROM_NAME || 'support';
+config.smtp.address = process.env.SMTP_FROM_ADDRESS || 'support@skeleton.com';
 
 // How are we sending it?
-config.gmail                   = {};
-config.gmail.user              = process.env.SMTP_USERNAME || 'you@gmail.com';
-config.gmail.password          = process.env.SMTP_PASSWORD || 'appspecificpassword';
+config.gmail = {};
+config.gmail.user = process.env.SMTP_USERNAME || 'you@gmail.com';
+config.gmail.password = process.env.SMTP_PASSWORD || 'appspecificpassword';
 
 
 /**
  * Authorization Configuration
  */
 
-config.localAuth               = true;
-config.verificationRequired    = false;  // on/off for user email verification at signup
-config.enhancedSecurity        = false;   // on/off for two factor authentication
+config.localAuth = true;
+config.verificationRequired = false; // on/off for user email verification at signup
+config.enhancedSecurity = false; // on/off for two factor authentication
 
 // Facebook
-config.facebookAuth            = false;
-config.facebook                = {};
-config.facebook.clientID       = process.env.FACEBOOK_KEY    || 'Your Key';
-config.facebook.clientSecret   = process.env.FACEBOOK_SECRET || 'Your Secret';
+config.facebookAuth = false;
+config.facebook = {};
+config.facebook.clientID = process.env.FACEBOOK_KEY || 'Your Key';
+config.facebook.clientSecret = process.env.FACEBOOK_SECRET || 'Your Secret';
 
 // Github
-config.githubAuth              = false;
-config.github                  = {};
-config.github.clientID         = process.env.GITHUB_KEY    || 'Your Key';
-config.github.clientSecret     = process.env.GITHUB_SECRET || 'Your Secret';
+config.githubAuth = false;
+config.github = {};
+config.github.clientID = process.env.GITHUB_KEY || 'Your Key';
+config.github.clientSecret = process.env.GITHUB_SECRET || 'Your Secret';
 
 // Twitter
-config.twitterAuth             = false;
-config.twitter                 = {};
-config.twitter.consumerKey     = process.env.TWITTER_KEY    || 'Your Key';
-config.twitter.consumerSecret  = process.env.TWITTER_SECRET || 'Your Secret';
+config.twitterAuth = false;
+config.twitter = {};
+config.twitter.consumerKey = process.env.TWITTER_KEY || 'Your Key';
+config.twitter.consumerSecret = process.env.TWITTER_SECRET || 'Your Secret';
 
 // Google
-config.googleAuth              = false;
-config.google                  = {};
-config.google.clientID         = process.env.GOOGLE_KEY    || 'Your Key';
-config.google.clientSecret     = process.env.GOOGLE_SECRET || 'Your Secret';
+config.googleAuth = false;
+config.google = {};
+config.google.clientID = process.env.GOOGLE_KEY || 'Your Key';
+config.google.clientSecret = process.env.GOOGLE_SECRET || 'Your Secret';
 
 
 /**

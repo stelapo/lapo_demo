@@ -7,15 +7,17 @@
  * Dependencies
  */
 
-var $             = require('gulp-load-plugins')({ lazy: true });
-var psi           = require('psi');
-var del           = require('del');
-var gulp          = require('gulp');
-var pngquant      = require('imagemin-pngquant');
-var terminus      = require('terminus');
-var runSequence   = require('run-sequence');
-var puglint       = require('gulp-pug-lint');
-var debug         = require('gulp-debug');
+var $ = require('gulp-load-plugins')({
+  lazy: true
+});
+var psi = require('psi');
+var del = require('del');
+var gulp = require('gulp');
+var pngquant = require('imagemin-pngquant');
+var terminus = require('terminus');
+var runSequence = require('run-sequence');
+var puglint = require('gulp-pug-lint');
+var debug = require('gulp-debug');
 
 /**
  * Banner
@@ -43,7 +45,7 @@ var paths = {
     'public/js/**/*.min.js',
     'public/css/**/*.css',
     'public/css/**/*.min.css',
-    '!public/js/main.js',            // ! not
+    '!public/js/main.js', // ! not
   ],
   js: [
     // ============= Bootstrap  ================
@@ -64,6 +66,8 @@ var paths = {
     // 'public/lib/bootstrap/js/affix.js'
     // =========================================
     'public/lib/fastclick/lib/fastclick.js',
+    // =========================================
+
     'public/js/main.js'
   ],
   lint: [
@@ -76,13 +80,15 @@ var paths = {
     'gulpfile.js'
   ],
   less: [
-    'less/main.less',/*
-    'less/page-api.less',*/
+    'less/main.less',
+    /*
+        'less/page-api.less',*/
     'less/page-colors.less',
     'less/page-dashboard.less',
     'less/page-accounts.less',
-    'less/page-privacy.less'/*,
-    'less/page-react.less'*/
+    'less/page-privacy.less'
+    /*,
+        'less/page-react.less'*/
   ]
 };
 
@@ -90,7 +96,7 @@ var paths = {
  * Clean
  */
 
-gulp.task('clean', function () {
+gulp.task('clean', function() {
   return del(paths.clean);
 });
 
@@ -98,69 +104,85 @@ gulp.task('clean', function () {
  * Process CSS
  */
 
-gulp.task('styles', function () {
-  return gulp.src(paths.less)               // Read in Less files
+gulp.task('styles', function() {
+  return gulp.src(paths.less) // Read in Less files
     .pipe(debug())
-    .pipe($.less({ strictMath: true }))     // Compile Less files
-    .pipe($.autoprefixer({                  // Autoprefix for target browsers
+    .pipe($.less({
+      strictMath: true
+    })) // Compile Less files
+    .pipe($.autoprefixer({ // Autoprefix for target browsers
       browsers: ['last 2 versions'],
       cascade: true
     }))
-    .pipe($.csscomb())                      // Coding style formatter for CSS
-    .pipe($.csslint('.csslintrc'))          // Lint CSS
-    .pipe($.csslint.formatter())             // Report issues
-    .pipe($.rename({ suffix: '.min' }))     // Add .min suffix
-    .pipe($.csso())                         // Minify CSS
-    .pipe($.header(banner, { pkg : pkg }))  // Add banner
-    .pipe($.size({ title: 'CSS:' }))        // What size are we at?
-    .pipe(gulp.dest('./public/css'))        // Save minified CSS
-    //.pipe($.livereload())                 // Initiate a reload
-    ;
+    .pipe($.csscomb()) // Coding style formatter for CSS
+    .pipe($.csslint('.csslintrc')) // Lint CSS
+    .pipe($.csslint.formatter()) // Report issues
+    .pipe($.rename({
+      suffix: '.min'
+    })) // Add .min suffix
+    .pipe($.csso()) // Minify CSS
+    .pipe($.header(banner, {
+      pkg: pkg
+    })) // Add banner
+    .pipe($.size({
+      title: 'CSS:'
+    })) // What size are we at?
+    .pipe(gulp.dest('./public/css')) // Save minified CSS
+  //.pipe($.livereload())                 // Initiate a reload
+  ;
 });
 
 /**
  * Process Scripts
  */
 
-gulp.task('scripts', function () {
-  return gulp.src(paths.js)                 // Read .js files
-    .pipe($.plumber())                      // Prevent pipe breaking caused by errors from gulp plugins
-    .pipe(debug())                          // Print source filenames
-    .pipe($.concat(pkg.name + '.js'))       // Concatenate .js files
-    .pipe(gulp.dest('./public/js'))         // Save main.js here
-    .pipe($.rename({ suffix: '.min' }))     // Add .min suffix
-    .pipe($.uglify(/*{ outSourceMap: true }*/)) // Minify the .js
-    .pipe($.header(banner, { pkg : pkg }))  // Add banner
-    .pipe($.size({ title: 'JS:' }))         // What size are we at?
-    .pipe(gulp.dest('./public/js'))         // Save minified .js
-    //.pipe($.livereload())                 // Initiate a reload
-    ;
+gulp.task('scripts', function() {
+  return gulp.src(paths.js) // Read .js files
+    .pipe($.plumber()) // Prevent pipe breaking caused by errors from gulp plugins
+    .pipe(debug()) // Print source filenames
+    .pipe($.concat(pkg.name + '.js')) // Concatenate .js files
+    .pipe(gulp.dest('./public/js')) // Save main.js here
+    .pipe($.rename({
+      suffix: '.min'
+    })) // Add .min suffix
+    .pipe($.uglify( /*{ outSourceMap: true }*/ )) // Minify the .js
+    .pipe($.header(banner, {
+      pkg: pkg
+    })) // Add banner
+    .pipe($.size({
+      title: 'JS:'
+    })) // What size are we at?
+    .pipe(gulp.dest('./public/js')) // Save minified .js
+  //.pipe($.livereload())                 // Initiate a reload
+  ;
 });
 
 /**
  * Process Images
  */
 
-gulp.task('images', function () {
-  return gulp.src('images/**/*')            // Read images
-    .pipe($.changed('./public/img'))        // Only process new/changed
-    .pipe($.imagemin({                      // Compress images
+gulp.task('images', function() {
+  return gulp.src('images/**/*') // Read images
+    .pipe($.changed('./public/img')) // Only process new/changed
+    .pipe($.imagemin({ // Compress images
       progressive: true,
       optimizationLevel: 9,
       interlaced: true,
-      svgoPlugins: [{ removeViewBox: false }],
+      svgoPlugins: [{
+        removeViewBox: false
+      }],
       use: [pngquant()]
     }))
-    .pipe(gulp.dest('./public/img'));       // Write processed images
+    .pipe(gulp.dest('./public/img')); // Write processed images
 });
 
 /**
  * JSHint Files
  */
 
-gulp.task('lint', function () {
-  return gulp.src(paths.lint)               // Read .js files
-    .pipe($.jshint())                       // lint .js files
+gulp.task('lint', function() {
+  return gulp.src(paths.lint) // Read .js files
+    .pipe($.jshint()) // lint .js files
     .pipe($.jshint.reporter('jshint-stylish'));
 });
 
@@ -168,21 +190,23 @@ gulp.task('lint', function () {
  * JSCS Files
  */
 
-gulp.task('jscs', function () {
-  return gulp.src(paths.lint)               // Read .js files
+gulp.task('jscs', function() {
+  return gulp.src(paths.lint) // Read .js files
     .pipe(debug())
-    .pipe($.jscs())                         // jscs .js files
-    .on('error', function (e) {
+    .pipe($.jscs()) // jscs .js files
+    .on('error', function(e) {
       $.util.log(e.message);
       $.jscs().end();
     })
-    .pipe(terminus.devnull({ objectMode: true }));
+    .pipe(terminus.devnull({
+      objectMode: true
+    }));
 });
 
 /**
-*
-*/
-gulp.task('pug', function () {
+ *
+ */
+gulp.task('pug', function() {
   return gulp
     .src('views/**/*.pug')
     .pipe(puglint());
@@ -193,11 +217,11 @@ gulp.task('pug', function () {
  *   - Build all the things...
  */
 
-gulp.task('build', function (cb) {
+gulp.task('build', function(cb) {
   runSequence(
-    'clean',                                // first clean
-    ['lint', 'jscs'],                   // then lint and jscs in parallel
-    ['pug', 'styles', 'scripts', 'images'],        // etc.
+    'clean', // first clean
+    ['lint', 'jscs'], // then lint and jscs in parallel
+    ['pug', 'styles', 'scripts', 'images'], // etc.
     cb);
 });
 
@@ -205,52 +229,58 @@ gulp.task('build', function (cb) {
  * Nodemon Task
  */
 
-gulp.task('nodemon', ['build'], function (cb) {
+gulp.task('nodemon', ['build'], function(cb) {
   //$.livereload.listen();
   var called = false;
   $.nodemon({
-    script: 'app.js',
-    verbose: false,
-    env: { 'NODE_ENV': 'development', 'DEBUG': 'lapo_demo' },
-    // nodeArgs: ['--debug']
-    ext: 'js',
-    ignore: [
-      'gulpfile.js',
-      'public/',
-      'views/',
-      'less/',
-      'node_modules/'
-    ]
-  })
-  .on('start', function () {
-    setTimeout(function () {
-      if (!called) {
-        called = true;
-        cb();
-      }
-    }, 3000);  // wait for start
-  })
-  .on('restart', function () {
-    setTimeout(function () {
-      //$.livereload.changed('/');
-    }, 3000);  // wait for restart
-  });
+      script: 'app.js',
+      verbose: false,
+      env: {
+        'NODE_ENV': 'development',
+        'DEBUG': 'lapo_demo'
+      },
+      // nodeArgs: ['--debug']
+      ext: 'js',
+      ignore: [
+        'gulpfile.js',
+        'public/',
+        'views/',
+        'less/',
+        'node_modules/'
+      ]
+    })
+    .on('start', function() {
+      setTimeout(function() {
+        if (!called) {
+          called = true;
+          cb();
+        }
+      }, 3000); // wait for start
+    })
+    .on('restart', function() {
+      setTimeout(function() {
+        //$.livereload.changed('/');
+      }, 3000); // wait for restart
+    });
 });
 
 /**
  * Open the browser
  */
 
-gulp.task('open', ['nodemon'], function () {
+gulp.task('open', ['nodemon'], function() {
   gulp.src('')
-  .pipe($.open({ app: 'google chrome', uri: 'http://localhost:3001' }));
+    .pipe($.open({
+      app: 'google chrome',
+      uri: 'http://localhost:3001'
+    }));
 });
 
 /**
  * Default Task
  */
 
-gulp.task('default', ['open'], function () {
+gulp.task('default', ['open'], function() {
   gulp.watch(paths.less, ['styles']);
   gulp.watch(paths.js, ['scripts']);
   gulp.watch(paths.lint, ['lint', 'jscs']);
@@ -267,7 +297,7 @@ gulp.task('default', ['open'], function () {
 
 var site = 'lapo_demo.su';
 
-gulp.task('mobile', function (cb) {
+gulp.task('mobile', function(cb) {
   // output a formatted report to the terminal
   psi.output(site, {
     strategy: 'mobile',
@@ -276,7 +306,7 @@ gulp.task('mobile', function (cb) {
   }, cb);
 });
 
-gulp.task('desktop', ['mobile'], function (cb) {
+gulp.task('desktop', ['mobile'], function(cb) {
   // output a formatted report to the terminal
   psi.output(site, {
     strategy: 'desktop',

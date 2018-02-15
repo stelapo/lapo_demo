@@ -4,7 +4,7 @@
  * Capitalize the first letter of a string
  */
 
-exports.capitalize = function (str) {
+exports.capitalize = function(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
@@ -16,20 +16,19 @@ exports.capitalize = function (str) {
 // string. If you pass it a json object you will see
 // this error: "Unexpected token o". (?) If so try
 // JSON.stringify(yourJSONobject) and pass that in.
-exports.isValidJSON = function (jsonString) {
+exports.isValidJSON = function(jsonString) {
   try {
     var o = JSON.parse(jsonString);
     // Handle non-exception-throwing cases:
     // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
     // but... JSON.parse(null) returns 'null', and typeof null === 'object',
     // so we must check for that too. (!)
-    if (o && typeof o === 'object' && o !== null) {
+    if(o && typeof o === 'object' && o !== null) {
       return true;
     } else {
       return false;
     }
-  }
-  catch (e) {
+  } catch(e) {
     console.log('Error: ' + e.message);
   }
   return false;
@@ -39,13 +38,13 @@ exports.isValidJSON = function (jsonString) {
  * Generate a random key
  */
 
-exports.randomKey = function (len) {
+exports.randomKey = function(len) {
 
   var buf = [];
   var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   var charlen = chars.length;
 
-  for (var i = 0; i < len; ++i) {
+  for(var i = 0; i < len; ++i) {
     buf.push(chars[getRandomInt(0, charlen - 1)]);
   }
 
@@ -56,13 +55,13 @@ exports.randomKey = function (len) {
  * Generate a random SMS Value
  */
 
-exports.randomSMS = function (len) {
+exports.randomSMS = function(len) {
 
   var buf = [];
   var chars = '0123456789';
   var charlen = chars.length;
 
-  for (var i = 0; i < len; ++i) {
+  for(var i = 0; i < len; ++i) {
     buf.push(chars[getRandomInt(0, charlen - 1)]);
   }
 
@@ -73,7 +72,7 @@ exports.randomSMS = function (len) {
  * Get a random number between a min and max number
  */
 
-function getRandomInt (min, max) {
+function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -84,19 +83,19 @@ function getRandomInt (min, max) {
 
 var charTable = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
-function quintetCount (buff) {
+function quintetCount(buff) {
   var quintets = Math.floor(buff.length / 5);
   return buff.length % 5 === 0 ? quintets : quintets + 1;
 }
 
-exports.encode = function (plain) {
+exports.encode = function(plain) {
   var i = 0;
   var j = 0;
   var shiftIndex = 0;
   var digit = 0;
   var encoded = new Array(quintetCount(plain) * 8);
 
-  while (i < plain.length) {
+  while(i < plain.length) {
 
     /* Javascript bitwise operators:
 
@@ -111,7 +110,7 @@ exports.encode = function (plain) {
 
     var current = plain.charCodeAt(i);
 
-    if (shiftIndex > 3) {
+    if(shiftIndex > 3) {
       digit = current & (0xff >> shiftIndex);
       shiftIndex = (shiftIndex + 5) % 8;
       digit = (digit << shiftIndex) | ((i + 1 < plain.length) ?
@@ -120,7 +119,7 @@ exports.encode = function (plain) {
     } else {
       digit = (current >> (8 - (shiftIndex + 5))) & 0x1f;
       shiftIndex = (shiftIndex + 5) % 8;
-      if (shiftIndex === 0) {
+      if(shiftIndex === 0) {
         i++;
       }
     }
@@ -129,7 +128,7 @@ exports.encode = function (plain) {
     j++;
   }
 
-  for (i = j; i < encoded.length; i++) {
+  for(i = j; i < encoded.length; i++) {
     encoded[i] = '=';
   }
 
@@ -142,13 +141,13 @@ exports.encode = function (plain) {
  * @type {Date}
  */
 function myTimestamp() {
-    var date = new Date(); // Or the date you'd like converted.
-    var isoDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-    return isoDate;
+  var date = new Date(); // Or the date you'd like converted.
+  var isoDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+  return isoDate;
 }
 
 exports.timestamp = myTimestamp;
 
 exports.formattedTimestamp = function() {
-    return myTimestamp().toISOString().replace(/z|t/gi, ' ').trim();
+  return myTimestamp().toISOString().replace(/z|t/gi, ' ').trim();
 };

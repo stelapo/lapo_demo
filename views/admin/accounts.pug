@@ -3,7 +3,12 @@ extends ../layouts/layout
 
 block head  
   title #{application} &middot; Accounts
-  link(rel='stylesheet', href='/css/page-accounts.min.css')
+  link(rel='stylesheet', href='/css/page-accounts.min.css')    
+  link(rel='stylesheet', href='/lib/bootstrap/dist/css/bootstrap.min.css')
+  link(rel='stylesheet', href='/lib/footable/compiled/footable.core.bootstrap.css')
+  link(rel='stylesheet', href='/lib/footable/compiled/footable.bootstrap.min.css')
+  link(rel='stylesheet', href='/lib/footable/compiled/footable.filtering.min.css')
+  link(rel='stylesheet', href='/lib/footable/compiled/footable.paging.min.css')
 
 block content
   .container
@@ -35,13 +40,13 @@ block content
 
           //- USER LIST
           #userList
-            table.table.table-striped
+            table.table.table-striped.footable(data-filtering='true' data-paging='true' data-paging-size='5' data-sorting='true')
               thead
-                th Name
-                th.hidden-xs Email
-                th.hidden-xs Date Established
-                th Last Active
-                th Delete?
+                th(data-sorted='true') Name
+                th.hidden-xs(data-filterable='true') Email
+                th.hidden-xs(data-filterable='false') Date Established
+                th(data-filterable='false', data-sortable='false') Last Active
+                th(data-filterable='false', data-sortable='false') Delete?
               tbody
           //- /USER LIST
 
@@ -93,8 +98,12 @@ block content
             button#yes.btn.btn-primary(type='button') Yes!
 
   //- script(src='lib/moment/min/moment.min.js')
-  //- script(src='lib/bootstrap/js/modal.js')
+  //- script(src='lib/bootstrap/js/modal.js')    
 block scripts
+  //-script(src='/lib/footable/compiled/footable.core.min.js')  
+    script(src='/lib/footable/compiled/footable.filtering.min.js')
+    script(src='/lib/footable/compiled/footable.paging.min.js')
+  script(src='/lib/footable/compiled/footable.min.js')
   script.
     // Userlist data array for filling in info box
     var userListData = [];
@@ -126,7 +135,9 @@ block scripts
 
       // Delete User link click
       $('#userList table tbody').on('click', 'td a.linkdeleteuser', deleteUser);
-
+      
+      
+      
     });
 
     // Functions =============================================================
@@ -155,6 +166,9 @@ block scripts
 
         // Inject the whole content string into our existing HTML table
         $('#userList table tbody').html(tableContent);
+        
+        // Attach Footable
+        $('.footable').footable();
       });
 
     };
@@ -224,6 +238,6 @@ block scripts
       }
 
       // call modal function with the user's account id
-      showmodal($(this).attr('rel'));
+      showmodal($(this).attr('rel'));      
 
     };

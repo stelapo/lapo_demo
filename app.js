@@ -5,41 +5,41 @@
  */
 
 // Express 4.x Modules
-const csrf              = require('csurf');                   // https://github.com/expressjs/csurf
+const csrf = require('csurf'); // https://github.com/expressjs/csurf
 //const morgan            = require('morgan');                  // https://github.com/expressjs/morgan
-const winston           = require('winston');
-const expressWinston    = require('express-winston');         // https://www.npmjs.com/package/express-winston
-const express           = require('express');                 // https://npmjs.org/package/express
-const favicon           = require('serve-favicon');           // https://github.com/expressjs/favicon
-const session           = require('express-session');         // https://github.com/expressjs/session
-const compress          = require('compression');             // https://github.com/expressjs/compression
-const bodyParser        = require('body-parser');             // https://github.com/expressjs/body-parser
-const errorHandler      = require('errorhandler');            // https://github.com/expressjs/errorhandler
-const methodOverride    = require('method-override');         // https://github.com/expressjs/method-override
+const winston = require('winston');
+const expressWinston = require('express-winston'); // https://www.npmjs.com/package/express-winston
+const express = require('express'); // https://npmjs.org/package/express
+const favicon = require('serve-favicon'); // https://github.com/expressjs/favicon
+const session = require('express-session'); // https://github.com/expressjs/session
+const compress = require('compression'); // https://github.com/expressjs/compression
+const bodyParser = require('body-parser'); // https://github.com/expressjs/body-parser
+const errorHandler = require('errorhandler'); // https://github.com/expressjs/errorhandler
+const methodOverride = require('method-override'); // https://github.com/expressjs/method-override
 
 // Additional Modules
-const fs                = require('fs');                      // http://nodejs.org/docs/v0.10.25/api/fs.html
-const path              = require('path');                    // http://nodejs.org/docs/v0.10.25/api/path.html
-const debug             = require('debug')('lapo_demo');       // https://github.com/visionmedia/debug
-const flash             = require('express-flash');           // https://npmjs.org/package/express-flash
-const config            = require('./config/config');         // Get configuration file
+const fs = require('fs'); // http://nodejs.org/docs/v0.10.25/api/fs.html
+const path = require('path'); // http://nodejs.org/docs/v0.10.25/api/path.html
+const debug = require('debug')('lapo_demo'); // https://github.com/visionmedia/debug
+const flash = require('express-flash'); // https://npmjs.org/package/express-flash
+const config = require('./config/config'); // Get configuration file
 //const logger            = require('express-loggly');          // https://github.com/dstroot/express-loggly
-const helmet            = require('helmet');                  // https://github.com/evilpacket/helmet
-const semver            = require('semver');                  // https://npmjs.org/package/semver
-const enforce           = require('express-sslify');          // https://github.com/florianheinemann/express-sslify
-const mongoose          = require('mongoose');                // https://npmjs.org/package/mongoose
-const passport          = require('passport');                // https://npmjs.org/package/passport
-const MongoStore        = require('connect-mongo')(session);  // https://npmjs.org/package/connect-mongo
-const expressValidator  = require('express-validator');       // https://npmjs.org/package/express-validator
-const utils             = require('./config/utils');          // Get utils file
+const helmet = require('helmet'); // https://github.com/evilpacket/helmet
+const semver = require('semver'); // https://npmjs.org/package/semver
+const enforce = require('express-sslify'); // https://github.com/florianheinemann/express-sslify
+const mongoose = require('mongoose'); // https://npmjs.org/package/mongoose
+const passport = require('passport'); // https://npmjs.org/package/passport
+const MongoStore = require('connect-mongo')(session); // https://npmjs.org/package/connect-mongo
+const expressValidator = require('express-validator'); // https://npmjs.org/package/express-validator
+const utils = require('./config/utils'); // Get utils file
 
 /**
  * Create Express app, HTTP server and socket.io listener
  */
 
-const app    = module.exports = express();  // export app for testing ;)
+const app = module.exports = express(); // export app for testing ;)
 const server = require('http').Server(app);
-const io     = require('socket.io')(server);
+const io = require('socket.io')(server);
 
 const tsFormat = () => utils.formattedTimestamp;
 
@@ -51,11 +51,17 @@ mongoose.connect(config.mongodb.url);
 const db = mongoose.connection;
 
 // Use Mongo for session store
-config.session.store  = new MongoStore({
+config.session.store = new MongoStore({
   mongooseConnection: db,
   autoReconnect: true
 });
 
+
+/**
+ * Configure Postgresql Database
+ */
+
+const knexdb = require('./config/knexdb');
 
 
 /**
@@ -71,12 +77,12 @@ config.session.store  = new MongoStore({
 // for your own variable names, such as name, apply, bind, call,
 // arguments, length, and constructor.
 
-app.locals.application  = config.name;
-app.locals.version      = config.version;
-app.locals.description  = config.description;
-app.locals.author       = config.author;
-app.locals.keywords     = config.keywords;
-app.locals.ga           = config.ga;
+app.locals.application = config.name;
+app.locals.version = config.version;
+app.locals.description = config.description;
+app.locals.author = config.author;
+app.locals.keywords = config.keywords;
+app.locals.ga = config.ga;
 
 // Format dates/times in jade templates
 // Use moment anywhere within a jade template like this:
@@ -108,7 +114,7 @@ if (app.get('env') === 'production') {
   app.locals.pretty = false;
   app.locals.compileDebug = false;
   // Enable If behind nginx, proxy, or a load balancer (e.g. Heroku, Nodejitsu)
-  app.enable('trust proxy', 1);  // trust first proxy
+  app.enable('trust proxy', 1); // trust first proxy
   // Since our application has signup, login, etc. forms these should be protected
   // with SSL encryption. Heroku, Nodejitsu and other hosters often use reverse
   // proxies or load balancers which offer SSL endpoints (but then forward unencrypted
@@ -130,7 +136,9 @@ if (app.get('env') === 'production') {
   // TODO: should we actually have this *and* app.use(enforce.HTTPS(true)); above?
   //       this seems more flexible rather than a hard redirect.
   const ninetyDaysInMilliseconds = 7776000000;
-  app.use(helmet.hsts({ maxAge: ninetyDaysInMilliseconds }));
+  app.use(helmet.hsts({
+    maxAge: ninetyDaysInMilliseconds
+  }));
   // Turn on HTTPS/SSL cookies
   config.session.proxy = true;
   config.session.cookie.secure = true;
@@ -147,7 +155,7 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 // Report CSP violations (*ABOVE* CSURF in the middleware stack)
 // Browsers will post violations to this route
 // https://mathiasbynens.be/notes/csp-reports
-app.post('/csp', bodyParser.json(), function (req, res) {
+app.post('/csp', bodyParser.json(), function(req, res) {
   // TODO - requires production level logging
   if (req.body) {
     // Just send to debug to see if this is working
@@ -171,23 +179,27 @@ app.use(compress());
 // Google has a nice article about "strong" and "weak" caching.
 // It's worth a quick read if you don't know what that means.
 // https://developers.google.com/speed/docs/best-practices/caching
-app.set('etag', true);  // other values 'weak', 'strong'
+app.set('etag', true); // other values 'weak', 'strong'
 
 // Now setup serving static assets from /public
 
 // time in milliseconds...
-const minute = 1000 * 60;   //     60000
+const minute = 1000 * 60; //     60000
 const hour = (minute * 60); //   3600000
-const day  = (hour * 24);   //  86400000
-const week = (day * 7);     // 604800000
+const day = (hour * 24); //  86400000
+const week = (day * 7); // 604800000
 
 app.use(express.static(__dirname + '/public/lib/zxcvbn/dist'));
-app.use(express.static(__dirname + '/public', { maxAge: week }));
+app.use(express.static(__dirname + '/public', {
+  maxAge: week
+}));
 
 // Body parsing middleware supporting
 // JSON, urlencoded, and multipart requests.
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 // Easy form validation!
 // This line must be immediately after bodyParser!
@@ -234,33 +246,43 @@ const transp = [];
 // Transport console if dev mode
 if (app.get('env') === 'development') {
   transp.push(new winston.transports.Console({
-                json: false,
-                colorize: true,
-                timestamp: tsFormat
-              }));
+    json: false,
+    colorize: true,
+    timestamp: tsFormat
+  }));
 }
 // Transport file always
-transp.push(new (require('winston-daily-rotate-file'))({ //new (winston.transports.File)({
-              filename: `${config.winston.filename}`,
-              timestamp: tsFormat,
-              localTime: true,
-              datePattern: 'yyyy-MM-dd',
-              prepend: true,
-              zippedArchive: true,
-              maxDays: 7,
-              json: true,
-              level: app.get('env') === 'development' ? 'debug' : 'info'
-            }));
+transp.push(new(require('winston-daily-rotate-file'))({ //new (winston.transports.File)({
+  filename: `${config.winston.filename}`,
+  timestamp: tsFormat,
+  localTime: true,
+  datePattern: 'yyyy-MM-dd',
+  prepend: true,
+  zippedArchive: true,
+  maxDays: 7,
+  json: true,
+  level: app.get('env') === 'development' ? 'debug' : 'info'
+}));
 
 // use Winston for Request Logging
-app.use(expressWinston.logger({
-      transports: transp,
-      meta: true, // optional: control whether you want to log the meta data about the request (default to true)
-      msg: "HTTP {{req.method}} {{req.url}}", // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
-      expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
-      colorize: true, // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
-      ignoreRoute: function (req, res) { return false; } // optional: allows to skip some log messages based on request and/or response
-    }));
+const wl = {
+  transports: transp,
+  meta: true, // optional: control whether you want to log the meta data about the request (default to true)
+  msg: "HTTP {{req.method}} {{req.url}}", // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
+  expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
+  colorize: true, // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
+  ignoreRoute: function(req, res) {
+    return false;
+  } // optional: allows to skip some log messages based on request and/or response
+};
+const logger = new winston.Logger(wl);
+logger.debug('tsFormat=' + tsFormat());
+app.use(expressWinston.logger(wl));
+if (config.knex.enabled) {
+  knexdb.connect(config.knex.cfgData[app.get('env')], logger);
+}
+knexdb.testInsert('First insert from app.js');
+
 
 
 // Log requests to Loggly in production
@@ -272,12 +294,12 @@ app.use(expressWinston.logger({
 }*/
 
 // Security Settings
-app.disable('x-powered-by');          // Don't advertise our server type
-app.use(csrf());                      // Prevent Cross-Site Request Forgery
-app.use(helmet.ieNoOpen());           // X-Download-Options for IE8+
-app.use(helmet.noSniff());            // Sets X-Content-Type-Options to nosniff
-app.use(helmet.xssFilter());          // sets the X-XSS-Protection header
-app.use(helmet.frameguard('deny'));   // Prevent iframe clickjacking
+app.disable('x-powered-by'); // Don't advertise our server type
+app.use(csrf()); // Prevent Cross-Site Request Forgery
+app.use(helmet.ieNoOpen()); // X-Download-Options for IE8+
+app.use(helmet.noSniff()); // Sets X-Content-Type-Options to nosniff
+app.use(helmet.xssFilter()); // sets the X-XSS-Protection header
+app.use(helmet.frameguard('deny')); // Prevent iframe clickjacking
 
 
 
@@ -390,7 +412,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Keep user, csrf token and config available
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   res.locals.user = req.user;
   res.locals.config = config;
   res.locals._csrf = req.csrfToken();
@@ -408,7 +430,7 @@ app.use(flash());
  */
 
 // Dynamically include routes (via controllers)
-fs.readdirSync('./controllers').forEach(function (file) {
+fs.readdirSync('./controllers').forEach(function(file) {
   if (file.substr(-3) === '.js') {
     const route = require('./controllers/' + file);
     route.controller(app);
@@ -420,10 +442,10 @@ fs.readdirSync('./controllers').forEach(function (file) {
  */
 
 
- // Winston error logging
- app.use(expressWinston.errorLogger({
-       transports: transp
-     }));
+// Winston error logging
+app.use(expressWinston.errorLogger({
+  transports: transp
+}));
 
 // If nothing responded above we will assume a 404
 // (since no routes responded or static assets found)
@@ -434,19 +456,23 @@ fs.readdirSync('./controllers').forEach(function (file) {
 //   $ curl http://localhost:3000/notfound -H "Accept: text/plain"
 
 // Handle 404 Errors
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   res.status(404);
   debug('404 Warning. URL: ' + req.url);
 
   // Respond with html page
   if (req.accepts('html')) {
-    res.render('error/404', { url: req.url });
+    res.render('error/404', {
+      url: req.url
+    });
     return;
   }
 
   // Respond with json
   if (req.accepts('json')) {
-    res.send({ error: 'Not found!'.red });
+    res.send({
+      error: 'Not found!'.red
+    });
     return;
   }
 
@@ -459,7 +485,7 @@ app.use(function (req, res, next) {
 // aka the signature (err, req, res, next).
 
 // Handle 403 Errors
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
   if (err.status === 403) {
     res.status(err.status);
     debug('403 Not Allowed. URL: ' + req.url + ' Err: ' + err);
@@ -475,7 +501,9 @@ app.use(function (err, req, res, next) {
 
     // Respond with json
     if (req.accepts('json')) {
-      res.send({ error: 'Not Allowed!' });
+      res.send({
+        error: 'Not Allowed!'
+      });
       return;
     }
 
@@ -490,20 +518,20 @@ app.use(function (err, req, res, next) {
 
 // Production 500 error handler (no stacktraces leaked to public!)
 if (app.get('env') === 'production') {
-  app.use(function (err, req, res, next) {
+  app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    debug('Error: ' + (err.status || 500).toString().red/*.bold*/ + ' ' + err);
+    debug('Error: ' + (err.status || 500).toString().red /*.bold*/ + ' ' + err);
     res.render('error/500', {
-      error: {}  // don't leak information
+      error: {} // don't leak information
     });
   });
 }
 
 // Development 500 error handler
 if (app.get('env') === 'development') {
-  app.use(function (err, req, res, next) {
+  app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    debug('Error: ' + (err.status || 500).toString()/*.red.bold*/ + ' ' + err);
+    debug('Error: ' + (err.status || 500).toString() /*.red.bold*/ + ' ' + err);
     /*res.render('error/500', {
       error: err
     });*/
@@ -525,35 +553,35 @@ if (app.get('env') === 'development') {
  *   are *only* enabled when in production!
  */
 
-db.on('error', function () {
-  debug('MongoDB Connection Error. Please make sure MongoDB is running.'/*.red.bold*/);
+db.on('error', function() {
+  debug('MongoDB Connection Error. Please make sure MongoDB is running.' /*.red.bold*/ );
   process.exit(0);
 });
 
-db.on('open', function () {
-  debug('Mongodb ' + 'connected!'/*.green.bold*/);
+db.on('open', function() {
+  debug('Mongodb ' + 'connected!' /*.green.bold*/ );
 
   // "server.listen" for socket.io
-  server.listen(app.get('port'), function () {
+  server.listen(app.get('port'), function() {
 
     // Test for correct node version as spec'ed in package.info
     if (!semver.satisfies(process.versions.node, config.engine)) {
-      debug('Error: unsupported version of Node or io.js!'/*.red.bold*/);
-      debug(config.name/*.red.bold*/ + ' needs Node or io.js version '/*.red.bold*/ + config.engine/*.red.bold*/);
+      debug('Error: unsupported version of Node or io.js!' /*.red.bold*/ );
+      debug(config.name /*.red.bold*/ + ' needs Node or io.js version ' /*.red.bold*/ + config.engine /*.red.bold*/ );
       process.exit(0);
     }
 
     // Log how we are running
-    debug('listening on port ' + app.get('port').toString()/*.green.bold*/);
-    debug('listening in ' + app.settings.env/*.green.bold*/ + ' mode.');
-    debug('Ctrl+C'/*.green.bold*/ + ' to shut down. ;)');
+    debug('listening on port ' + app.get('port').toString() /*.green.bold*/ );
+    debug('listening in ' + app.settings.env /*.green.bold*/ + ' mode.');
+    debug('Ctrl+C' /*.green.bold*/ + ' to shut down. ;)');
 
     // Exit cleanly on Ctrl+C
-    process.on('SIGINT', function () {
-      io.close();  // close socket.io
+    process.on('SIGINT', function() {
+      io.close(); // close socket.io
       console.log('\n');
-      debug('has ' + 'shutdown'/*.green.bold*/);
-      debug('was running for ' + Math.round(process.uptime()).toString()/*.green.bold*/ + ' seconds.');
+      debug('has ' + 'shutdown' /*.green.bold*/ );
+      debug('was running for ' + Math.round(process.uptime()).toString() /*.green.bold*/ + ' seconds.');
       process.exit(0);
     });
   });
@@ -568,11 +596,11 @@ db.on('open', function () {
 
 var connectedCount = 0;
 
-io.on('connection', function (socket) {
+io.on('connection', function(socket) {
   debug("Socket connected:" + (socket.handshake.headers['x-forwarded-for'] || socket.client.conn.remoteAddress || socket.handshake.address));
   connectedCount += 1;
   // Listen for pageview messages from clients
-  socket.on('pageview', function (message) {
+  socket.on('pageview', function(message) {
     var ip = socket.handshake.headers['x-forwarded-for'] || socket.client.conn.remoteAddress || socket.handshake.address;
     var url = message;
     var userAgent = socket.request.headers['user-agent'];
@@ -586,7 +614,7 @@ io.on('connection', function (socket) {
     });
   });
   // Update dashboard connections on disconnect events
-  socket.on('disconnect', function () {
+  socket.on('disconnect', function() {
     debug("Socket disconnected");
     connectedCount -= 1;
     io.emit('dashUpdate', {
