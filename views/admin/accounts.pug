@@ -60,6 +60,7 @@ block content
           p
             strong Name:
             |  <span id='userInfoName'></span>
+            |  <span id='isAdmin' class='sr-only'><i class="fa fa-user-circle"></i></span>              
           p.hidden-xs
             strong Email:
             | &nbsp;
@@ -82,7 +83,7 @@ block content
             |  <span id='userInfoLogon'></span>
           p.hidden-xs
             strong Last Update:
-            |  <span id='userInfoUpdate'></span>
+            |  <span id='userInfoUpdate'></span>          
         //- /USER INFO
 
   #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
@@ -200,6 +201,11 @@ block scripts
       $('#userInfoEstablished').text(moment(thisUserObject.activity.date_established).format('MMMM Do YYYY'));
       $('#userInfoLogon').text(moment(thisUserObject.activity.last_logon).fromNow());
       $('#userInfoUpdate').text(moment(thisUserObject.activity.last_update).fromNow());
+      
+      if (thisUserObject.type === 'admin')
+        $('#isAdmin').removeClass('sr-only');
+      else
+        $('#isAdmin').addClass('sr-only');
     };
 
     // Delete User

@@ -48,10 +48,16 @@ block content
           .form-group
             label.sr-only(for='confirmPassword') Confirm Password:
             input.form-control(type='password', name='confirmPassword', id='confirmPassword', placeholder='Confirm Password', autocomplete='off', required, pattern='^[^\S]{4,}', title='At least 4 characters!')
+          .checkbox
+            label(for='admin')
+              input(type='checkbox', name='admin', id='admin', title='Administrator')
+              | Is Administrator
           .form-group
             button.btn.btn-success(type='submit')
               i.fa.fa-check
               | &nbsp;Create
+          
+              
 
   //- HTML 5 Form Notes
   //- ===========================================

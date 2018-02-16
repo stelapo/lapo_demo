@@ -69,7 +69,7 @@ config.mongodb.url = 'mongodb://';
 config.mongodb.url += process.env.MONGODB_URL || 'localhost';
 
 config.knex = {};
-config.knex.enabled = true;
+config.knex.enabled = false;
 config.knex.cfgData = {
   development: {
     client: 'pg',

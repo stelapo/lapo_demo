@@ -119,8 +119,9 @@ module.exports.controller = function(app) {
         'profile.name': req.body.name.trim(),
         email: req.body.email.toLowerCase(),
         password: req.body.password,
-        verifyToken: true,
-        verified: null
+        verifyToken: null,
+        verified: true,
+        type: ((req.body.admin) ? "admin" : "user")
       });
 
       // save user
