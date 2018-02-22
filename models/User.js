@@ -4,9 +4,9 @@
  * Module Dependencies
  */
 
-var bcrypt    = require('bcrypt-nodejs');
-var crypto    = require('crypto');
-var mongoose  = require('mongoose');
+var bcrypt = require('bcrypt-nodejs');
+var crypto = require('crypto');
+var mongoose = require('mongoose');
 
 /**
  * Define User Schema
@@ -32,51 +32,138 @@ var mongoose  = require('mongoose');
 
 var userSchema = new mongoose.Schema({
 
-  email: { type: String, unique: true, index: true },
-  password: { type: String },
-  type: { type: String, default: 'user' },
+  email: {
+    type: String,
+    unique: true,
+    index: true
+  },
+  password: {
+    type: String
+  },
+  type: {
+    type: String,
+    default: 'user'
+  },
+  superadmin: {
+    type: Boolean,
+    default: false
+  },
   // EVERYONE'S AN ADMINISTRATOR IN EXAMPLE
   // DEFAULT TYPE SHOULB BE 'user'!
   // type: { type: String, default: 'user' },
 
-  facebook: { type: String, unique: true, sparse: true },
-  twitter: { type: String, unique: true, sparse: true },
-  google: { type: String, unique: true, sparse: true },
-  github: { type: String, unique: true, sparse: true },
+  facebook: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  twitter: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  google: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  github: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   tokens: Array,
 
   profile: {
-    name: { type: String, default: '' },
-    gender: { type: String, default: '' },
-    location: { type: String, default: '' },
-    website: { type: String, default: '' },
-    picture: { type: String, default: '' },
+    name: {
+      type: String,
+      default: ''
+    },
+    surname: {
+      type: String,
+      default: ''
+    },
+    gender: {
+      type: String,
+      default: ''
+    },
+    location: {
+      type: String,
+      default: ''
+    },
+    website: {
+      type: String,
+      default: ''
+    },
+    picture: {
+      type: String,
+      default: ''
+    },
     phone: {
-      work: { type: String, default: '' },
-      home: { type: String, default: '' },
-      mobile: { type: String, default: '' }
+      work: {
+        type: String,
+        default: ''
+      },
+      home: {
+        type: String,
+        default: ''
+      },
+      mobile: {
+        type: String,
+        default: ''
+      }
     }
   },
 
   activity: {
-    date_established: { type: Date, default: Date.now },
-    last_logon: { type: Date, default: Date.now },
-    last_updated: { type: Date }
+    date_established: {
+      type: Date,
+      default: Date.now
+    },
+    last_logon: {
+      type: Date,
+      default: Date.now
+    },
+    last_updated: {
+      type: Date
+    }
   },
 
-  resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date },
+  resetPasswordToken: {
+    type: String
+  },
+  resetPasswordExpires: {
+    type: Date
+  },
 
-  verified: { type: Boolean, default: true },
-  verifyToken: { type: String },
+  verified: {
+    type: Boolean,
+    default: true
+  },
+  verifyToken: {
+    type: String
+  },
 
   enhancedSecurity: {
-    enabled: { type: Boolean, default: false },
-    type: { type: String },  // sms or totp
-    token: { type: String },
-    period: { type: Number },
-    sms: { type: String },
-    smsExpires: { type: Date }
+    enabled: {
+      type: Boolean,
+      default: false
+    },
+    type: {
+      type: String
+    }, // sms or totp
+    token: {
+      type: String
+    },
+    period: {
+      type: Number
+    },
+    sms: {
+      type: String
+    },
+    smsExpires: {
+      type: Date
+    }
   }
 
 });
@@ -85,7 +172,7 @@ var userSchema = new mongoose.Schema({
  * Hash the password and sms token for security.
  */
 
-userSchema.pre('save', function (next) {
+userSchema.pre('save', function(next) {
 
   var user = this;
   var SALT_FACTOR = 5;
@@ -93,11 +180,11 @@ userSchema.pre('save', function (next) {
   if (!user.isModified('password')) {
     return next();
   } else {
-    bcrypt.genSalt(SALT_FACTOR, function (err, salt) {
+    bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
       if (err) {
         return next(err);
       }
-      bcrypt.hash(user.password, salt, null, function (err, hash) {
+      bcrypt.hash(user.password, salt, null, function(err, hash) {
         if (err) {
           return next(err);
         }
@@ -109,12 +196,36 @@ userSchema.pre('save', function (next) {
 
 });
 
+userSchema.pre('update', function(next) {
+
+  var updateData = this;
+  var SALT_FACTOR = 5;
+
+  if (!updateData._update.password) {
+    return next();
+  } else {
+    bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
+      if (err) {
+        return next(err);
+      }
+      bcrypt.hash(updateData._update.password, salt, null, function(err, hash) {
+        if (err) {
+          return next(err);
+        }
+        updateData._update.password = hash;
+        next();
+      });
+    });
+  }
+
+});
+
 /**
  * Check the user's password
  */
 
-userSchema.methods.comparePassword = function (candidatePassword, cb) {
-  bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
+userSchema.methods.comparePassword = function(candidatePassword, cb) {
+  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
     if (err) {
       return cb(err);
     }
@@ -126,8 +237,8 @@ userSchema.methods.comparePassword = function (candidatePassword, cb) {
  * Check user's SMS token
  */
 
-userSchema.methods.compareSMS = function (candidateSMS, cb) {
-  bcrypt.compare(candidateSMS, this.enhancedSecurity.sms, function (err, isMatch) {
+userSchema.methods.compareSMS = function(candidateSMS, cb) {
+  bcrypt.compare(candidateSMS, this.enhancedSecurity.sms, function(err, isMatch) {
     if (err) {
       return cb(err);
     }
@@ -139,7 +250,7 @@ userSchema.methods.compareSMS = function (candidateSMS, cb) {
  *  Get a URL to a user's Gravatar email.
  */
 
-userSchema.methods.gravatar = function (size, defaults) {
+userSchema.methods.gravatar = function(size, defaults) {
   if (!size) {
     size = 200;
   }

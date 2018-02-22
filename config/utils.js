@@ -1,5 +1,8 @@
 'use strict';
 
+var config = require('../config/config');
+var nodemailer = require('nodemailer');
+
 /**
  * Capitalize the first letter of a string
  */
@@ -23,12 +26,12 @@ exports.isValidJSON = function(jsonString) {
     // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
     // but... JSON.parse(null) returns 'null', and typeof null === 'object',
     // so we must check for that too. (!)
-    if(o && typeof o === 'object' && o !== null) {
+    if (o && typeof o === 'object' && o !== null) {
       return true;
     } else {
       return false;
     }
-  } catch(e) {
+  } catch (e) {
     console.log('Error: ' + e.message);
   }
   return false;
@@ -44,7 +47,7 @@ exports.randomKey = function(len) {
   var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   var charlen = chars.length;
 
-  for(var i = 0; i < len; ++i) {
+  for (var i = 0; i < len; ++i) {
     buf.push(chars[getRandomInt(0, charlen - 1)]);
   }
 
@@ -61,7 +64,7 @@ exports.randomSMS = function(len) {
   var chars = '0123456789';
   var charlen = chars.length;
 
-  for(var i = 0; i < len; ++i) {
+  for (var i = 0; i < len; ++i) {
     buf.push(chars[getRandomInt(0, charlen - 1)]);
   }
 
@@ -95,7 +98,7 @@ exports.encode = function(plain) {
   var digit = 0;
   var encoded = new Array(quintetCount(plain) * 8);
 
-  while(i < plain.length) {
+  while (i < plain.length) {
 
     /* Javascript bitwise operators:
 
@@ -110,7 +113,7 @@ exports.encode = function(plain) {
 
     var current = plain.charCodeAt(i);
 
-    if(shiftIndex > 3) {
+    if (shiftIndex > 3) {
       digit = current & (0xff >> shiftIndex);
       shiftIndex = (shiftIndex + 5) % 8;
       digit = (digit << shiftIndex) | ((i + 1 < plain.length) ?
@@ -119,7 +122,7 @@ exports.encode = function(plain) {
     } else {
       digit = (current >> (8 - (shiftIndex + 5))) & 0x1f;
       shiftIndex = (shiftIndex + 5) % 8;
-      if(shiftIndex === 0) {
+      if (shiftIndex === 0) {
         i++;
       }
     }
@@ -128,7 +131,7 @@ exports.encode = function(plain) {
     j++;
   }
 
-  for(i = j; i < encoded.length; i++) {
+  for (i = j; i < encoded.length; i++) {
     encoded[i] = '=';
   }
 
@@ -150,4 +153,34 @@ exports.timestamp = myTimestamp;
 
 exports.formattedTimestamp = function() {
   return myTimestamp().toISOString().replace(/z|t/gi, ' ').trim();
+};
+
+
+exports.getEmailTransporter = function() {
+  let authConf = {
+    user: config.mail.user,
+    pass: config.mail.password
+  };
+  // Create reusable transporter object using SMTP transport
+  let transporterConf = {
+    auth: authConf
+  };
+  if (config.smtp.type === 'Gmail') {
+    transporterConf.service = 'Gmail';
+  } else if (config.smtp.type === 'Office365') {
+    transporterConf.host = 'smtp.office365.com';
+  }
+  let transporter = nodemailer.createTransport(transporterConf);
+  return transporter;
+};
+
+exports.getEmailOptions = function(user, subject, text, html) {
+  let mailOptions = {
+    to: user.profile.name + ' <' + user.email + '>',
+    from: config.smtp.name + ' <' + config.smtp.address + '>',
+    subject: subject,
+    text: text,
+    html: html
+  };
+  return mailOptions;
 };

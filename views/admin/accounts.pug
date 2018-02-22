@@ -43,10 +43,11 @@ block content
             table.table.table-striped.footable(data-filtering='true' data-paging='true' data-paging-size='5' data-sorting='true')
               thead
                 th(data-sorted='true') Name
+                th(data-sorted='true') Surname
                 th.hidden-xs(data-filterable='true') Email
                 th.hidden-xs(data-filterable='false') Date Established
                 th(data-filterable='false', data-sortable='false') Last Active
-                th(data-filterable='false', data-sortable='false') Delete?
+                th(data-filterable='false', data-sortable='false')
               tbody
           //- /USER LIST
 
@@ -158,11 +159,18 @@ block scripts
         // For each item in our JSON, add a table row and cells to the content string
         $.each(data, function(){
           tableContent += '<tr>';
-          tableContent += '<td><a href="#" class="linkshowuser btn btn-info btn-xs"" rel="' + this._id + '" title="Show Details">' + this.profile.name + '</td>';
+          tableContent += '<td data-sort-value="' + this.profile.name + '"><a href="#" class="linkshowuser btn btn-info btn-xs"" rel="' + this._id + '" title="Show Details">' + this.profile.name + '</td>';
+          tableContent += '<td>' + this.profile.surname + '</td>';
           tableContent += '<td class="hidden-xs"><a href="mailto:' + this.email + '">' + this.email + '</a></td>';
           tableContent += '<td class="hidden-xs">' + moment(this.activity.date_established).format('MMMM Do YYYY') + '</td>';
           tableContent += '<td>' + moment(this.activity.last_logon).fromNow() + '</td>';
-          tableContent += '<td><a href="#" class="linkdeleteuser btn btn-danger btn-xs" rel="' + this._id + '">Danger!</a></td>';
+          tableContent += '<td>';
+          if(!this.superadmin)
+            tableContent += '<a href="/modaccount/' + this._id + '"><i class="fa fa-edit"></i></a></br>' + 
+                            '<a href="#" class="linkdeleteuser" rel="' + this._id + '"><i class="fa fa-trash"></i></a>'
+                            //'<a href="#" class="linkdeleteuser btn btn-danger btn-xs" rel="' + this._id + '">Danger!</a>'
+                            ;
+          tableContent += '</td>';
         });
 
         // Inject the whole content string into our existing HTML table
@@ -191,7 +199,7 @@ block scripts
 
       //Populate Info Box  .attr("src", src)
       $('#userPicture').attr("src", (thisUserObject.profile.picture));
-      $('#userInfoName').text(thisUserObject.profile.name);
+      $('#userInfoName').text(thisUserObject.profile.name + ' ' + thisUserObject.profile.surname);
       $('#userInfoEmail').attr('href', 'mailto:' + thisUserObject.email).text(thisUserObject.email);
       $('#userInfoLocation').text(thisUserObject.profile.location);
       $('#userInfoGender').text(thisUserObject.profile.gender);
@@ -206,7 +214,7 @@ block scripts
         $('#isAdmin').removeClass('sr-only');
       else
         $('#isAdmin').addClass('sr-only');
-    };
+    };   
 
     // Delete User
     function deleteUser(event) {

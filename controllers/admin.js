@@ -6,9 +6,10 @@
 
 const User = require('../models/User');
 const config = require('../config/config');
+const utils = require('../config/utils');
 const passportConf = require('../config/passport');
 const debug = require('debug')('lapo_demo');
-const nodemailer = require('nodemailer');
+//const nodemailer = require('nodemailer');
 const knexdb = require('../config/knexdb');
 
 /**
@@ -78,6 +79,44 @@ module.exports.controller = function(app) {
    */
 
   app.post('/newaccount', passportConf.isAuthenticated, passportConf.isAdministrator, function(req, res) {
+    manageAccount(req, res, 'new');
+  });
+
+
+  /**
+   * GET /modaccount
+   * Render admin page for modify account
+   */
+
+  app.get('/modaccount/:id', passportConf.isAuthenticated, passportConf.isAdministrator, function(req, res) {
+    var query = User.findOne({
+      _id: req.params.id
+    });
+
+    query.exec(function(err, user) {
+      if (err) {
+        req.flash('error', err);
+        res.render('admin/accounts');
+      }
+      //debug(user);
+      res.render('admin/newaccount', {
+        userM: user
+      });
+    });
+
+  });
+
+  /**
+   * POST /modaccount
+   * Modify account with admin privilege
+   */
+
+  app.post('/modaccount', passportConf.isAuthenticated, passportConf.isAdministrator, function(req, res) {
+    manageAccount(req, res, 'mod');
+  });
+
+  function manageAccount(req, res, typ) {
+    let hasPassword = (typ === 'new' || req.body.password || req.body.confirmPassword);
 
     // Create a workflow (here you could also use the async waterfall pattern)
     var workflow = new(require('events').EventEmitter)();
@@ -87,15 +126,23 @@ module.exports.controller = function(app) {
      */
 
     workflow.on('validate', function() {
-      debug('Validating....');
+      //debug('Validating....');
 
       req.assert('name', 'Name cannot be empty.').notEmpty();
-      req.assert('email', 'Email cannot be empty.').notEmpty();
-      req.assert('email', 'Email is not valid.').isEmail();
-      req.assert('password', 'Password cannot be empty.').notEmpty();
-      req.assert('confirmPassword', 'Password confirmation cannot be empty.').notEmpty();
-      req.assert('password', 'Password must be at least 4 characters long.').len(4);
-      req.assert('confirmPassword', 'Passwords do not match.').equals(req.body.password);
+      req.assert('surname', 'Surname cannot be empty.').notEmpty();
+      if (typ === 'new') {
+        req.assert('email', 'Email cannot be empty.').notEmpty();
+        req.assert('email', 'Email is not valid.').isEmail();
+      }
+      if (hasPassword) {
+        req.assert('password', 'Password cannot be empty.').notEmpty();
+        req.assert('confirmPassword', 'Password confirmation cannot be empty.').notEmpty();
+        req.assert('password', 'Password must be at least 4 characters long.').len(4);
+        req.assert('confirmPassword', 'Passwords do not match.').equals(req.body.password);
+      }
+      if (typ === 'mod') {
+        req.assert('id', 'Id cannot be empty.').notEmpty();
+      }
 
       var errors = req.validationErrors();
 
@@ -117,31 +164,62 @@ module.exports.controller = function(app) {
       // create user
       var user = new User({
         'profile.name': req.body.name.trim(),
-        email: req.body.email.toLowerCase(),
+        'profile.surname': req.body.surname.trim(),
+        email: ((req.body.email) ? req.body.email.toLowerCase() : req.body.emailAccount),
         password: req.body.password,
         verifyToken: null,
         verified: true,
         type: ((req.body.admin) ? "admin" : "user")
       });
 
-      // save user
-      user.save(function(err) {
-        if (err) {
-          if (err.code === 11000) {
-            req.flash('error', {
-              msg: 'An account with that email address already exists!'
-            });
-            req.flash('info', {
-              msg: 'You should sign in with that account.'
-            });
+      if (typ === 'new') {
+        // save user
+        user.save(function(err) {
+          if (err) {
+            if (err.code === 11000) {
+              req.flash('error', {
+                msg: 'An account with that email address already exists!'
+              });
+              req.flash('info', {
+                msg: 'You should sign in with that account.'
+              });
+            }
+            return res.redirect('back');
+          } else {
+            // next step (4)
+            workflow.emit('sendWelcomeEmail', user);
           }
-          return res.redirect('back');
-        } else {
-          // next step (4)
-          workflow.emit('sendWelcomeEmail', user);
-        }
-      });
+        });
+      } else {
+        let updateData = {
+          profile: {
+            name: user.profile.name,
+            surname: user.profile.surname
+          }
+        };
 
+        if (hasPassword) {
+          updateData.password = user.password;
+        }
+
+        User.update({
+            _id: req.body.id
+          }, updateData, {
+            upsert: true
+          },
+          function(err) {
+            if (err) {
+              debug(err);
+              req.flash('error', {
+                msg: err
+              });
+              return res.redirect('back');
+            } else {
+              // next step (4)
+              workflow.emit('sendWelcomeEmail', user);
+            }
+          });
+      }
     });
 
 
@@ -152,16 +230,11 @@ module.exports.controller = function(app) {
     workflow.on('sendWelcomeEmail', function(user) {
 
       // Create reusable transporter object using SMTP transport
-      var transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-          user: config.gmail.user,
-          pass: config.gmail.password
-        }
-      });
+      let transporter = utils.getEmailTransporter();
 
       // Render HTML to send using .jade mail template (just like rendering a page)
       res.render('mail/welcome', {
+        typ: typ,
         name: user.profile.name,
         mailtoName: config.smtp.name,
         mailtoAddress: config.smtp.address,
@@ -173,9 +246,16 @@ module.exports.controller = function(app) {
         } else {
 
           // Now create email text (multiline string as array FTW)
-          var text = [
+          let text;
+          if (typ === 'new') {
+            text = 'We would like to welcome you as our newest member!';
+          } else {
+            text = 'We would like to inform you that your data were updated from our administration team!';
+
+          }
+          text = [
             'Hello ' + user.profile.name + '!',
-            'We would like to welcome you as our newest member!',
+            text,
             'Thanks so much for using our services! If you have any questions, or suggestions, feel free to email us here at ' + config.smtp.address + '.',
             'If you want to get the latest scoop check out our <a href="' +
             req.protocol + '://' + req.headers.host + '/blog' +
@@ -185,13 +265,13 @@ module.exports.controller = function(app) {
           ].join('\n\n');
 
           // Create email
-          var mailOptions = {
-            to: user.profile.name + ' <' + user.email + '>',
-            from: config.smtp.name + ' <' + config.smtp.address + '>',
-            subject: 'Welcome to ' + app.locals.application + '!',
-            text: text,
-            html: html
-          };
+          let subject;
+          if (typ === 'new') {
+            subject = 'Welcome to ' + app.locals.application + '!';
+          } else {
+            subject = 'Your ' + app.locals.application + ' profile was updated';
+          }
+          var mailOptions = utils.getEmailOptions(user, subject, text, html);
 
           // Send email
           transporter.sendMail(mailOptions, function(err, info) {
@@ -209,10 +289,19 @@ module.exports.controller = function(app) {
       });
 
       // next step
-      req.flash('info', {
-        msg: 'Account ' + user.email + ' successfully created!'
-      });
+      if (typ === 'new') {
+        req.flash('info', {
+          msg: 'Account ' + user.email + ' successfully created!'
+        });
+      } else {
+        // next step
+        req.flash('info', {
+          msg: 'Account ' + user.email + ' successfully updated!'
+        });
+      }
+
       res.redirect('/accounts');
+
     });
 
     /**
@@ -220,8 +309,7 @@ module.exports.controller = function(app) {
      */
 
     workflow.emit('validate');
-
-  });
+  }
 
 
   /**
@@ -235,21 +323,36 @@ module.exports.controller = function(app) {
       debug(result);
       res.send((result.n === 1 && result.ok === 1) ? { msg: '' } : { msg: 'error: ' + err });
     });*/
-    User.findOneAndRemove({
-        _id: req.params.id
-      })
-      .exec(function(err, item) {
-        var errMsg = '';
-        if (err) {
-          errMsg = 'Cannot remove user';
-        }
-        if (!item) {
-          errMsg = 'User not found';
-        }
-        res.send({
-          msg: errMsg
+    if (req.user._id.toString() !== req.params.id) {
+      User.findOneAndRemove({
+          _id: req.params.id,
+          $or: [{
+              superadmin: {
+                $exists: false
+              }
+            },
+            {
+              superadmin: false
+            }
+          ]
+        })
+        .exec(function(err, item) {
+          var errMsg = '';
+          if (err) {
+            errMsg = 'Cannot remove user';
+          }
+          if (!item) {
+            errMsg = 'User not found';
+          }
+          res.send({
+            msg: errMsg
+          });
         });
+    } else {
+      res.send({
+        msg: 'Cannot remove your user'
       });
+    }
   });
 
   /**

@@ -27,6 +27,9 @@ block content
             label.sr-only(for='name') Name
             input.form-control(type='text', name='name', id='name', placeholder='Your Name', value=user.profile.name, required)
           .form-group
+            label.sr-only(for='surname') Surname
+            input.form-control(type='text', name='surname', id='surname', placeholder='Your Surname', value=user.profile.surname, required)
+          .form-group
             label.sr-only(for='email') Email
             input.form-control(type='email', name='email', id='email', value=user.email, required)
             #hint

@@ -18,21 +18,43 @@ block head
       background-image: linear-gradient(to left, #A3FF5C 0%, #EF1F3B 5%);
     }
 
+//- value=((userM!=null)?userM.profile.name:'')
+
+
+
 block content
+  //- if userM
+    h1 #{userM.profile.name}
+    h1 #{userM.email}
   .container
     .row
       .col-sm-6.col-sm-offset-3
         br
         br
-        form(action='/newaccount', method='POST')
+        form(action=((userM)?'/modaccount':'/newaccount'), method='POST')
           input(type='hidden', name='_csrf', value=_csrf)
-          legend Create a New Account
+          - var requ = true
+          - var dis = false
+          if userM
+            - requ = false
+            - dis = true
+            input(type='hidden', name='id', value=userM._id)
+            input(type='hidden', name='emailAccount', value=userM.email)
+          legend 
+            if userM
+              | Modify              
+            else
+              | Create a New
+            |  Account
           .form-group
             label.sr-only(for='name') Name:
-            input.form-control(type='text', name='name', id='name', placeholder='Name', autofocus=true, required)
+            input.form-control(type='text', name='name', id='name', placeholder='Name', value=((userM)?userM.profile.name:''), autofocus=true, required)
+          .form-group
+              label.sr-only(for='surname') Name:
+              input.form-control(type='text', name='surname', id='surname', value=((userM)?userM.profile.surname:''), placeholder='Surname', required)
           .form-group
             label.sr-only(for='email') Email:
-            input.form-control(type='email', name='email', id='email', placeholder='Email', required)
+            input.form-control(type='email', name='email', id='email', value=((userM)?userM.email:''), placeholder='Email', required, disabled=dis)
             #hint
           .form-group
             label.sr-only(for='password') Password:
@@ -41,13 +63,13 @@ block content
             //- You can keep other aspects of the form autocompletable, but force the user
             //- to retype his/her own password, helping ensure they are who they say they are.
           
-            input.form-control(type='password', name='password', id='password', placeholder='Password', autocomplete='off', required, pattern='^[^\S]{4,}', title='At least 4 characters!')
+            input.form-control(type='password', name='password', id='password', placeholder='Password', autocomplete='off', required=requ, pattern='^[^\S]{4,}', title='At least 4 characters!')
             .progress
               .progress-bar(role='progressbar')
             .difficulty
           .form-group
             label.sr-only(for='confirmPassword') Confirm Password:
-            input.form-control(type='password', name='confirmPassword', id='confirmPassword', placeholder='Confirm Password', autocomplete='off', required, pattern='^[^\S]{4,}', title='At least 4 characters!')
+            input.form-control(type='password', name='confirmPassword', id='confirmPassword', placeholder='Confirm Password', autocomplete='off', required=requ, pattern='^[^\S]{4,}', title='At least 4 characters!')
           .checkbox
             label(for='admin')
               input(type='checkbox', name='admin', id='admin', title='Administrator')
@@ -55,7 +77,11 @@ block content
           .form-group
             button.btn.btn-success(type='submit')
               i.fa.fa-check
-              | &nbsp;Create
+              | &nbsp;
+              if userM
+                | Modify
+              else
+                | Create
           
               
 

@@ -25,8 +25,12 @@ head
                         //- Only Edit Here
                         //- -----------------------------------------------------------------------------------
                         p Hello #{name}!
-                        p
-                          | We would like to welcome you as our newest member!
+                        if (typ === 'new')
+                          p
+                            | We would like to welcome you as our newest member!
+                        else
+                          p
+                            | We would like to inform you that your data were updated from our administration team!
                         p
                           | Thanks so much for using our services. If you have any questions, or suggestions, please feel free to email us here at&nbsp;
                           a(href='mailto:#{mailtoAddress}') #{mailtoName}

@@ -41,7 +41,7 @@ const app = module.exports = express(); // export app for testing ;)
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-const tsFormat = () => utils.formattedTimestamp;
+const tsFormat = utils.formattedTimestamp;
 
 /**
  * Configure Mongo Database
@@ -276,7 +276,7 @@ const wl = {
   } // optional: allows to skip some log messages based on request and/or response
 };
 const logger = new winston.Logger(wl);
-logger.debug('tsFormat=' + tsFormat());
+//logger.debug('tsFormat=' + tsFormat());
 app.use(expressWinston.logger(wl));
 if (config.knex.enabled) {
   knexdb.connect(config.knex.cfgData[app.get('env')], logger);
